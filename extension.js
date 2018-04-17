@@ -3,7 +3,7 @@
 const vscode = require('vscode');
 const mkdirp = require('mkdirp')
 const path = require('path')
-const fs = require('fs')
+const fs = require('fs-extra')
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
@@ -16,7 +16,7 @@ function activate(context) {
     // The command has been defined in the package.json file
     // Now provide the implementation of the command with  registerCommand
     // The commandId parameter must match the command field in package.json
-    let disposable = vscode.commands.registerCommand('extension.newComponent', function () {
+    let disposable = vscode.commands.registerCommand('wxapp.newComponent', function () {
         // The code you place here will be executed every time your command is executed
 
         // 1. 打开输入框，输入基于当前文件夹的地址
@@ -24,8 +24,7 @@ function activate(context) {
         vscode.window.showInputBox({
             placeHolder: 'input component folder path base on current file'
         }).then(value => {
-            console.log('fs', fs)
-            console.log('current workspace', vscode.workspace.workspaceFolders)
+            // console.log('current workspace', vscode.workspace.workspaceFolders)
             const root = vscode.workspace.workspaceFolders
             if (value) {
                 // 默认工作区根目录
@@ -35,26 +34,21 @@ function activate(context) {
                 // 创建文件夹，要按文件夹命名
                 const uri = path.join(currentPath, value)
                 const folderName = path.basename(uri)
-                // const parent = path.dirname(uri)
-                console.log('current uri', uri)
+                // console.log('current uri', uri)
                 mkdirp(uri, err => {
                     if (err) throw new Error('fail to create folder: ' + uri)
                     const templatePath = path.resolve(__dirname, 'template/component')
                     // 四个文件
                     const extList = ['json', 'js', 'wxss', 'wxml']
-                    const errHandler = (e) => {
-                        console.log(e)
-                    }
+                    // const errHandler = (e) => {
+                    //     console.log(e)
+                    // }
                     extList.forEach(ext => {
                         const templateFilePath = path.join(templatePath, 'component.' + ext)
-                        console.log('template file', templateFilePath)
+                        // console.log('template file', templateFilePath)
                         const distFilePath = path.join(uri, folderName + '.' + ext)
-                        console.log('dist file', distFilePath)
-                        try {
-                            fs.copyFile(templateFilePath, distFilePath, errHandler)
-                        } catch(e) {
-                            console.error(e)
-                        }
+                        // console.log('dist file', distFilePath)
+                        fs.copy(templateFilePath, distFilePath)
                     })
                 })
             }
